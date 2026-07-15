@@ -30,6 +30,7 @@ import {
   Pie
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { apiFetch } from '../../utils/api';
 
 export default function Dashboard() {
   const { token, isDemoMode } = useAuth();
@@ -45,12 +46,11 @@ export default function Dashboard() {
     const fetchDashboard = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:5000/api/analytics/dashboard', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const dashboardData = await res.json();
+        try {
+          const dashboardData = await apiFetch<any>('/api/analytics/dashboard');
           setData(dashboardData);
+        } catch (err) {
+          console.warn('Backend connection failed, staying with mock data', err);
         }
       } catch (err) {
         console.warn('Backend connection failed, staying with mock data', err);

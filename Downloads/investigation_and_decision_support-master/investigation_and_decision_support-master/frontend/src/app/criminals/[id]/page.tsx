@@ -18,6 +18,7 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 import Link from 'next/link';
+import { apiFetch } from '../../../utils/api';
 
 export default function CriminalProfile() {
   const { id } = useParams();
@@ -39,39 +40,32 @@ export default function CriminalProfile() {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/criminals/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const payload = await res.json();
-          
-          // Map database structures to matching UI parameters
-          const mapped: MockCriminal = {
-            id: payload.id,
-            name: payload.name,
-            aliases: payload.aliases || 'N/A',
-            aadhaarNumber: payload.aadhaarNumber || 'N/A',
-            dateOfBirth: payload.dateOfBirth.slice(0, 10),
-            gender: payload.gender,
-            riskScore: payload.riskScore,
-            status: payload.status,
-            photoUrl: payload.photoUrl || '',
-            gang: payload.associates?.[0]?.relationType === 'GANG_MEMBER' ? 'Linked Syndicate' : 'N/A',
-            vehicles: payload.vehicles?.map((v: any) => v.registrationNumber) || [],
-            phones: payload.phones?.map((p: any) => p.phoneNumber) || [],
-            associates: payload.associates?.map((a: any) => ({
-              id: a.associate?.id || '',
-              name: a.associate?.name || 'Unknown associate',
-              relation: a.relationType
-            })) || [],
-            cases: payload.associations?.map((a: any) => ({
-              id: a.fir?.id || '',
-              firNumber: a.fir?.firNumber || 'Unknown case',
-              role: a.role
-            })) || []
-          };
-          setCriminal(mapped);
-        }
+        const payload = await apiFetch<any>(`/api/criminals/${id}`);
+        const mapped: MockCriminal = {
+          id: payload.id,
+          name: payload.name,
+          aliases: payload.aliases || 'N/A',
+          aadhaarNumber: payload.aadhaarNumber || 'N/A',
+          dateOfBirth: payload.dateOfBirth ? payload.dateOfBirth.slice(0, 10) : '',
+          gender: payload.gender,
+          riskScore: payload.riskScore,
+          status: payload.status,
+          photoUrl: payload.photoUrl || '',
+          gang: payload.associates?.[0]?.relationType === 'GANG_MEMBER' ? 'Linked Syndicate' : 'N/A',
+          vehicles: payload.vehicles?.map((v: any) => v.registrationNumber) || [],
+          phones: payload.phones?.map((p: any) => p.phoneNumber) || [],
+          associates: payload.associates?.map((a: any) => ({
+            id: a.associate?.id || '',
+            name: a.associate?.name || 'Unknown associate',
+            relation: a.relationType
+          })) || [],
+          cases: payload.associations?.map((a: any) => ({
+            id: a.fir?.id || '',
+            firNumber: a.fir?.firNumber || 'Unknown case',
+            role: a.role
+          })) || []
+        };
+        setCriminal(mapped);
       } catch (err) {
         console.warn('API error fetching dossier, executing mock fallback');
       } finally {

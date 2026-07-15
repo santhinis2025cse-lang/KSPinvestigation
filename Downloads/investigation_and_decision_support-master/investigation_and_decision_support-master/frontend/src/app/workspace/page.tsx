@@ -18,6 +18,7 @@ import {
   Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiFetch } from '../../utils/api';
 
 export default function InvestigationWorkspace() {
   const { token, isDemoMode, user } = useAuth();
@@ -34,15 +35,10 @@ export default function InvestigationWorkspace() {
     // Load active workspace details from backend
     const fetchWorkspace = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/workspace', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setNotes(data.notes);
-          if (data.pinnedCases) {
-            setPinnedCases(data.pinnedCases.map((p: any) => p.fir));
-          }
+        const data = await apiFetch<any>('/api/workspace');
+        setNotes(data.notes || notes);
+        if (data.pinnedCases) {
+          setPinnedCases(data.pinnedCases.map((p: any) => p.fir));
         }
       } catch (err) {
         console.warn('API error fetching workspace');
@@ -64,17 +60,14 @@ export default function InvestigationWorkspace() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/workspace/notes', {
+      await apiFetch('/api/workspace/notes', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ notes })
       });
-      if (res.ok) {
-        toast.success('Workspace notes synced to KSP Database.');
-      }
+      toast.success('Workspace notes synced to KSP Database.');
     } catch (err) {
       toast.error('Failed to sync notes.');
     } finally {
@@ -89,9 +82,8 @@ export default function InvestigationWorkspace() {
     if (isDemoMode) return;
 
     try {
-      await fetch(`http://localhost:5000/api/workspace/pin/${firId}`, {
+      await apiFetch(`/api/workspace/pin/${firId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
       });
     } catch (err) {
       console.warn('Unpin failed');

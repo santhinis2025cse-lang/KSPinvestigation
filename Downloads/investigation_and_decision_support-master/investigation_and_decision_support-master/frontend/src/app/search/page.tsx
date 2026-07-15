@@ -16,6 +16,7 @@ import {
   History
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiFetch } from '../../utils/api';
 
 export default function CrimeSearch() {
   const { token, isDemoMode } = useAuth();
@@ -109,33 +110,37 @@ export default function CrimeSearch() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const res = await fetch(`http://localhost:5000/api/fir?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        const payload = await res.json();
-        // Map database response to match list
-        const mapped = payload.data.map((f: any) => ({
-          id: f.id,
-          firNumber: f.firNumber,
-          category: f.crimeCategory?.name || 'Unknown',
-          status: f.status,
-          dateOfOffence: f.dateOfOffence,
-          dateOfRegistration: f.dateOfRegistration,
-          summary: f.summary,
-          latitude: f.latitude,
-          longitude: f.longitude,
-          address: f.address,
-          complainantName: f.complainantName || 'N/A',
-          complainantPhone: f.complainantPhone || 'N/A',
-          stationName: f.policeStation?.name || 'Unknown',
-          districtName: f.district?.name || 'Unknown',
-          suspects: f.suspects?.map((s: any) => ({ name: s.criminal?.name || 'Unknown' })) || []
-        }));
-        setResults(mapped);
-        toast.success(`Active Database: Found ${mapped.length} records.`);
-      }
+      const payload = await apiFetch<{ data: any[] }>('/api/fir?' + params.toString());
+      const mapped: MockFIR[] = (payload.data || []).map((f: any) => ({
+        id: f.id,
+        firNumber: f.firNumber,
+        category: f.crimeCategory?.name || 'Unknown',
+        status: f.status,
+        dateOfOffence: f.dateOfOffence,
+        dateOfRegistration: f.dateOfRegistration,
+        summary: f.summary,
+        latitude: f.latitude ?? 0,
+        longitude: f.longitude ?? 0,
+        address: f.address,
+        complainantName: f.complainantName || 'N/A',
+        complainantPhone: f.complainantPhone || 'N/A',
+        stationName: f.policeStation?.name || 'Unknown',
+        districtName: f.district?.name || 'Unknown',
+        suspects: (f.suspects || []).map((s: any) => ({
+          id: s.criminal?.id || '',
+          name: s.criminal?.name || 'Unknown',
+          aliases: s.criminal?.aliases || '',
+          role: s.role || 'SUSPECT',
+          riskScore: s.criminal?.riskScore ?? 0,
+          status: s.criminal?.status || 'ACTIVE',
+        })),
+        evidence: [],
+        vehicles: [],
+        phones: [],
+        timeline: [],
+      }));
+      setResults(mapped);
+      toast.success(`Active Database: Found ${mapped.length} records.`);
     } catch (err) {
       console.warn('API error, executing mock search fallback');
     } finally {

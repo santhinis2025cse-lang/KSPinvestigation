@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '../utils/api';
 
 export type Role =
   | 'POLICE_OFFICER'
@@ -151,15 +152,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Production backend connectivity
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const data = await apiFetch<{ token: string; user: UserProfile }>('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ badgeNumber, password }),
-      });
+      }, false);
 
-      if (!res.ok) return false;
-
-      const data = await res.json();
       setUser(data.user);
       setToken(data.token);
       localStorage.setItem('ksp_auth_token', data.token);

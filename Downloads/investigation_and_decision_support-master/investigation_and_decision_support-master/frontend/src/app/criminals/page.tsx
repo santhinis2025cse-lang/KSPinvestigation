@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { MOCK_CRIMINALS, MockCriminal } from '../../utils/mockData';
 import { Search, UserCheck, AlertOctagon, UserX, BookOpen, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { apiFetch } from '../../utils/api';
 
 export default function CriminalsList() {
   const { token, isDemoMode } = useAuth();
@@ -39,13 +40,8 @@ export default function CriminalsList() {
         if (searchQuery) params.append('search', searchQuery);
         if (statusFilter) params.append('status', statusFilter);
 
-        const res = await fetch(`http://localhost:5000/api/criminals?${params.toString()}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const payload = await res.json();
-          setCriminals(payload.data);
-        }
+        const payload = await apiFetch<{ data: any[] }>('/api/criminals?' + params.toString());
+        setCriminals(payload.data || []);
       } catch (err) {
         console.warn('API error, falling back to mock');
       } finally {
