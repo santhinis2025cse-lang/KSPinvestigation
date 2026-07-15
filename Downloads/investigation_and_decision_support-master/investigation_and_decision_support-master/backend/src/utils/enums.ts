@@ -1,0 +1,64 @@
+/**
+ * Application-level enum definitions.
+ * These mirror the database string values stored in SQLite.
+ * Use these in controllers/services instead of importing from @prisma/client.
+ */
+
+export enum Role {
+  POLICE_OFFICER = 'POLICE_OFFICER',
+  INVESTIGATION_OFFICER = 'INVESTIGATION_OFFICER',
+  POLICE_INSPECTOR = 'POLICE_INSPECTOR',
+  CRIME_ANALYST = 'CRIME_ANALYST',
+  SCRB_ADMINISTRATOR = 'SCRB_ADMINISTRATOR',
+  SYSTEM_ADMINISTRATOR = 'SYSTEM_ADMINISTRATOR',
+}
+
+export enum FIRStatus {
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  SOLVED = 'SOLVED',
+  CLOSED = 'CLOSED',
+  CHARGESHEETED = 'CHARGESHEETED',
+}
+
+export enum CriminalStatus {
+  ACTIVE = 'ACTIVE',
+  IN_CUSTODY = 'IN_CUSTODY',
+  ABSCONDING = 'ABSCONDING',
+  PAROLE = 'PAROLE',
+  DECEASED = 'DECEASED',
+  ACQUITTED = 'ACQUITTED',
+}
+
+export enum SuspectRole {
+  SUSPECT = 'SUSPECT',
+  ACCOMPLICE = 'ACCOMPLICE',
+  WITNESS = 'WITNESS',
+}
+
+export enum EvidenceType {
+  WEAPON = 'WEAPON',
+  VEHICLE = 'VEHICLE',
+  DIGITAL = 'DIGITAL',
+  DOCUMENT = 'DOCUMENT',
+  PHYSICAL = 'PHYSICAL',
+  BIOLOGICAL = 'BIOLOGICAL',
+  OTHER = 'OTHER',
+}
+
+export enum RelationType {
+  GANG_MEMBER = 'GANG_MEMBER',
+  CO_CONSPIRATOR = 'CO_CONSPIRATOR',
+  FAMILY = 'FAMILY',
+  RELATIVE = 'RELATIVE',
+  ACQUAINTANCE = 'ACQUAINTANCE',
+}
+
+export enum NotificationType {
+  CRIME_SPIKE = 'CRIME_SPIKE',
+  HIGH_RISK_ALERT = 'HIGH_RISK_ALERT',
+  AI_RECOMMENDATION = 'AI_RECOMMENDATION',
+  INVESTIGATION_UPDATE = 'INVESTIGATION_UPDATE',
+  WARRANT_ALERT = 'WARRANT_ALERT',
+  SYSTEM = 'SYSTEM',
+}
